@@ -1,20 +1,17 @@
-import { StatusBar } from "expo-status-bar";
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
-import { Text, View } from "../components/Themed";
+import { Text, View } from "../../components/Themed";
 
-export default function ModalScreen() {
+export default function TabChatScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Modal</Text>
+      <Text style={styles.title}>Chat</Text>
       <View
         style={styles.separator}
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
-      <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
+      <Text style={styles.paragraph}>Chat Page With GPT</Text>
     </View>
   );
 }
@@ -28,6 +25,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  paragraph: {
+    fontSize: 16,
+    fontWeight: "normal",
   },
   separator: {
     marginVertical: 30,
