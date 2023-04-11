@@ -1,16 +1,19 @@
 import { get } from "radash";
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { ChatCompletionRequestMessage } from "openai";
 import { StyleSheet, FlatList, ListRenderItem, TextInput } from "react-native";
 
-import { RequestFn, useApi } from "../../api";
+import { useApi } from "../../api";
+import { StoreContext } from "../../store";
 import { Text, View } from "../../components/Themed";
 import { SendButton } from "../../components/SendButton";
 
 export default function TabChatScreen() {
+  const { organizationId: organizationId, apiKey } = useContext(StoreContext);
+  const { request: requestFn } = useApi(organizationId, apiKey);
+
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
-  const [requestFn, setRequestFn] = useState<RequestFn | undefined>();
   const [messages, setMessages] = useState<Array<ChatCompletionRequestMessage>>(
     []
   );
@@ -52,11 +55,13 @@ export default function TabChatScreen() {
     }
   };
 
-  useEffect(() => {
-    useApi().then(({ request }) => {
-      setRequestFn(() => request);
-    });
-  }, []);
+  if (!apiKey || !organizationId) {
+    return (
+      <View style={styles.container}>
+        <Text>Please save your Organization and ApiKey in setting</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

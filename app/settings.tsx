@@ -1,25 +1,36 @@
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "expo-router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Platform, StyleSheet, TextInput, Button } from "react-native";
 
+import { StoreContext } from "../store";
 import { Text, View } from "../components/Themed";
 import { getFromStore, saveToStore, StoreKeysEnum } from "../utils/store";
 
 export default function ModalScreen() {
   const navigation = useNavigation();
+  const {
+    apiKey,
+    organizationId: orgnazationId,
+    setApiKey,
+    setOrganizationId: setOrgnazationId,
+  } = useContext(StoreContext);
 
-  const [orgnazationId, setOrganazationId] = useState("");
-  const [apiKey, setApiKey] = useState("");
+  const [apiVal, setApiVal] = useState<string | undefined>(apiKey);
+  const [orgVal, setOrgVal] = useState<string | undefined>(orgnazationId);
 
   const initData = async () => {
-    getFromStore(StoreKeysEnum.ORGANIZATION_ID).then(setOrganazationId);
+    getFromStore(StoreKeysEnum.ORGANIZATION_ID).then(setOrgnazationId);
     getFromStore(StoreKeysEnum.API_KEY).then(setApiKey);
   };
 
   const saveKeys = async () => {
-    await saveToStore(StoreKeysEnum.ORGANIZATION_ID, orgnazationId);
-    await saveToStore(StoreKeysEnum.API_KEY, apiKey);
+    await saveToStore(StoreKeysEnum.API_KEY, apiVal ?? "");
+    await saveToStore(StoreKeysEnum.ORGANIZATION_ID, orgVal ?? "");
+
+    setApiKey && setApiKey(apiVal ?? "");
+    setOrgnazationId && setOrgnazationId(orgVal ?? "");
+
     navigation.goBack();
   };
 
@@ -31,17 +42,17 @@ export default function ModalScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Organization ID: </Text>
       <TextInput
-        value={orgnazationId}
+        value={orgVal}
         style={styles.textInput}
-        onChangeText={(val) => setOrganazationId(val)}
+        onChangeText={(val) => setOrgVal(val)}
         placeholder="Enter your organization ID from OpenAI dashboard"
       />
 
       <Text style={styles.title}>API Key: </Text>
       <TextInput
-        value={apiKey}
+        value={apiVal}
         style={styles.textInput}
-        onChangeText={(val) => setApiKey(val)}
+        onChangeText={(val) => setApiVal(val)}
         placeholder="Enter you api key from OpenAi dashboard"
       />
 
