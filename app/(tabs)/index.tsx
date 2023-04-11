@@ -76,11 +76,11 @@ export default function TabChatScreen() {
         <TextInput
           value={q}
           editable={!loading}
-          style={styles.input}
           returnKeyType="search"
-          placeholder="Please ask ..."
           onSubmitEditing={request}
+          placeholder="Please ask ..."
           onChangeText={(q) => setQ(q)}
+          style={loading ? { ...styles.input, color: "#e2e2e2" } : styles.input}
         />
 
         <SendButton
