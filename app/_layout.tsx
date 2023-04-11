@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
+import "react-native-url-polyfill/auto";
 import { useColorScheme } from "react-native";
 import { SplashScreen, Stack } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -47,7 +48,10 @@ function RootLayoutNav() {
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="settings"
+            options={{ presentation: "modal", title: "Settings" }}
+          />
         </Stack>
       </ThemeProvider>
     </>

@@ -24,14 +24,14 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="chat"
+        name="index"
         options={{
           title: "Chat",
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="commenting" color={color} />
           ),
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/settings" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome
