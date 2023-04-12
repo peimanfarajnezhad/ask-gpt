@@ -7,6 +7,9 @@ import { useApi } from "../../api";
 import { StoreContext } from "../../store";
 import { Text, View } from "../../components/Themed";
 import { ChatInput } from "../../components/ChatInput";
+import { ChatItem, MessageModel } from "../../components/ChatItem";
+
+let uniqueId = 1;
 
 export default function TabChatScreen() {
   const { organizationId: organizationId, apiKey } = useContext(StoreContext);
@@ -14,41 +17,45 @@ export default function TabChatScreen() {
 
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<Array<ChatCompletionRequestMessage>>(
-    []
+  const [messages, setMessages] = useState<Array<MessageModel>>([]);
+
+  const _keyExtractor = (m: MessageModel, i: number) => `item-${i}-${m.id}`;
+
+  const _renderItem: ListRenderItem<MessageModel> = ({ item }) => (
+    <ChatItem data={item} style={{ marginBottom: 16 }} />
   );
-
-  const _keyExtractor = (m: ChatCompletionRequestMessage, i: number) =>
-    `item-${i}`;
-
-  const _renderItem: ListRenderItem<ChatCompletionRequestMessage> = ({
-    item,
-  }) => {
-    if (item.role === "assistant") {
-      return <Text style={styles.assistantItem}>{item.content}</Text>;
-    } else {
-      return <Text style={styles.userItem}>{item.content}</Text>;
-    }
-  };
 
   const clearInput = () => {
     setValue("");
   };
 
   const request = async (q: string) => {
+    const userMessage: MessageModel = {
+      id: `${uniqueId++}`,
+      content: q,
+      role: "user",
+      created: Date.now(),
+    };
+
     try {
       setLoading(true);
       if (requestFn) {
-        const newMessages: ChatCompletionRequestMessage[] = [
-          ...messages,
+        const requestMessage: ChatCompletionRequestMessage[] = [
+          ...messages.map((m) => ({ role: m.role, content: m.content })),
           { role: "user", content: q },
         ];
 
-        const { data } = await requestFn(newMessages);
-        const response = data.choices[0].message;
+        const { data } = await requestFn(requestMessage);
+        const m = data.choices[0].message;
 
-        if (response) {
-          setMessages([...newMessages, response]);
+        if (m) {
+          const response: MessageModel = {
+            id: data.id,
+            created: data.created,
+            ...m,
+          };
+
+          setMessages((oldMessages) => [...oldMessages, userMessage, response]);
           clearInput();
         }
       }
