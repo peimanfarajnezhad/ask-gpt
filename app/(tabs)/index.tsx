@@ -1,18 +1,18 @@
 import { get } from "radash";
 import { useContext, useState } from "react";
 import { ChatCompletionRequestMessage } from "openai";
-import { StyleSheet, FlatList, ListRenderItem, TextInput } from "react-native";
+import { StyleSheet, FlatList, ListRenderItem } from "react-native";
 
 import { useApi } from "../../api";
 import { StoreContext } from "../../store";
 import { Text, View } from "../../components/Themed";
-import { SendButton } from "../../components/SendButton";
+import { ChatInput } from "../../components/ChatInput";
 
 export default function TabChatScreen() {
   const { organizationId: organizationId, apiKey } = useContext(StoreContext);
   const { request: requestFn } = useApi(organizationId, apiKey);
 
-  const [q, setQ] = useState("");
+  const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Array<ChatCompletionRequestMessage>>(
     []
@@ -31,7 +31,11 @@ export default function TabChatScreen() {
     }
   };
 
-  const request = async () => {
+  const clearInput = () => {
+    setValue("");
+  };
+
+  const request = async (q: string) => {
     try {
       setLoading(true);
       if (requestFn) {
@@ -45,7 +49,7 @@ export default function TabChatScreen() {
 
         if (response) {
           setMessages([...newMessages, response]);
-          setQ("");
+          clearInput();
         }
       }
     } catch (e) {
@@ -57,7 +61,7 @@ export default function TabChatScreen() {
 
   if (!apiKey || !organizationId) {
     return (
-      <View style={styles.container}>
+      <View style={{ ...styles.container, padding: 16 }}>
         <Text>Please save your Organization and ApiKey in setting</Text>
       </View>
     );
@@ -72,23 +76,13 @@ export default function TabChatScreen() {
         renderItem={_renderItem}
       />
 
-      <View style={styles.inputWrapper}>
-        <TextInput
-          value={q}
-          editable={!loading}
-          returnKeyType="search"
-          onSubmitEditing={request}
-          placeholder="Please ask ..."
-          onChangeText={(q) => setQ(q)}
-          style={loading ? { ...styles.input, color: "#e2e2e2" } : styles.input}
-        />
-
-        <SendButton
-          loading={loading}
-          onPress={request}
-          disabled={!(q && q.trim().length > 0)}
-        />
-      </View>
+      <ChatInput
+        value={value}
+        loading={loading}
+        placeholder="Ask you question..."
+        onSubmitEditing={request}
+        onChangeText={(val) => setValue(val)}
+      />
     </View>
   );
 }
