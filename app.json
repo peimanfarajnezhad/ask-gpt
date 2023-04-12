@@ -2,7 +2,7 @@
   "expo": {
     "name": "ask-gpt",
     "slug": "ask-gpt",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -12,13 +12,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
+      "bundleIdentifier": "info.peiman.askgpt",
+      "buildNumber": "1.0.1",
       "supportsTablet": true
     },
     "android": {
+      "package": "info.peiman.askgpt",
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -27,6 +29,11 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cdcf61b4-b306-4578-a7fb-23599ccf65a1"
+      }
     }
   }
 }
