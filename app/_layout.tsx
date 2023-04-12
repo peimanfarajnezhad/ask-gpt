@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
-import "react-native-url-polyfill/auto";
 import { useColorScheme } from "react-native";
 import { SplashScreen, Stack } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
