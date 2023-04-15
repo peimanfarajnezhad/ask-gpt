@@ -1,17 +1,37 @@
 import { StyleSheet } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { Text, View } from "../../components/Themed";
+import { ExternalLink } from "../../components/ExternalLink";
+
+const GithubLinkButton = () => {
+  return (
+    <ExternalLink
+      style={{ marginTop: 24, fontSize: 14 }}
+      href="https://github.com/peimanfarajnezhad/ask-gpt"
+    >
+      <View style={{ display: "flex", flexDirection: "row" }}>
+        <Text darkColor="#0969da" lightColor="#0969da">
+          Source Code
+        </Text>
+        <FontAwesome
+          name="github"
+          size={16}
+          style={{ marginStart: 8, color: "#0969da" }}
+        />
+      </View>
+    </ExternalLink>
+  );
+};
 
 export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Info</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
-      <Text style={styles.paragraph}>Peiman Farajnezhad</Text>
+      <Text style={styles.paragraph}>
+        Author: <Text style={{ fontWeight: "bold" }}>Peiman Farajnezhad</Text>
+      </Text>
+
+      <GithubLinkButton />
     </View>
   );
 }
