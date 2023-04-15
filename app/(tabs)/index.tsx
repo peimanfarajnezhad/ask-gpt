@@ -1,5 +1,5 @@
 import { get } from "radash";
-import { useContext, useState } from "react";
+import { useContext, useState, useRef } from "react";
 import { ChatCompletionRequestMessage } from "openai";
 import { StyleSheet, FlatList, ListRenderItem } from "react-native";
 
@@ -15,6 +15,7 @@ export default function TabChatScreen() {
   const { organizationId: organizationId, apiKey } = useContext(StoreContext);
   const { request: requestFn } = useApi(organizationId, apiKey);
 
+  const listRef = useRef<FlatList>(null);
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Array<MessageModel>>([]);
@@ -29,12 +30,30 @@ export default function TabChatScreen() {
     setValue("");
   };
 
+  const scrollToEnd = () => {
+    if (messages.length - 1 > 1) {
+      setTimeout(() => {
+        listRef.current?.scrollToIndex({
+          index: messages.length - 1,
+          animated: true,
+        });
+      }, 150);
+    }
+  };
+
   const request = async (q: string) => {
     const userMessage: MessageModel = {
       id: `${uniqueId++}`,
       content: q,
       role: "user",
       created: Date.now(),
+    };
+    const serverMessage: MessageModel = {
+      id: `${uniqueId++}`,
+      content: "",
+      role: "assistant",
+      created: 0,
+      isLoading: true,
     };
 
     try {
@@ -45,18 +64,28 @@ export default function TabChatScreen() {
           { role: "user", content: q },
         ];
 
+        setMessages((oldMessages) => [
+          ...oldMessages,
+          userMessage,
+          serverMessage,
+        ]);
+        scrollToEnd();
+        clearInput();
+
         const { data } = await requestFn(requestMessage);
         const m = data.choices[0].message;
 
         if (m) {
-          const response: MessageModel = {
-            id: data.id,
-            created: data.created,
-            ...m,
-          };
+          serverMessage.id = data.id;
+          serverMessage.content = m.content;
+          serverMessage.created = data.created;
+          serverMessage.isLoading = false;
 
-          setMessages((oldMessages) => [...oldMessages, userMessage, response]);
-          clearInput();
+          setMessages((oldMessages) => {
+            oldMessages.pop();
+            return [...oldMessages, serverMessage];
+          });
+          scrollToEnd();
         }
       }
     } catch (e) {
@@ -77,6 +106,7 @@ export default function TabChatScreen() {
   return (
     <View style={styles.container}>
       <FlatList
+        ref={listRef}
         data={messages}
         style={styles.list}
         keyExtractor={_keyExtractor}

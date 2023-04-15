@@ -5,7 +5,7 @@ import {
   CreateChatCompletionResponse,
 } from "openai";
 
-import { AxiosResponse } from "axios";
+import { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export type RequestFn = (
   messages: Array<ChatCompletionRequestMessage>
@@ -15,7 +15,10 @@ function useApi(organization: string, apiKey: string) {
   const config = new Configuration({ apiKey, organization });
   const api = new OpenAIApi(config);
 
-  const request = (messages: Array<ChatCompletionRequestMessage>) => {
+  const request = (
+    messages: Array<ChatCompletionRequestMessage>,
+    options?: AxiosRequestConfig<any>
+  ) => {
     if (messages && messages.length === 0) {
       messages.push({
         role: "system",
@@ -23,10 +26,13 @@ function useApi(organization: string, apiKey: string) {
       });
     }
 
-    return api.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages,
-    });
+    return api.createChatCompletion(
+      {
+        model: "gpt-3.5-turbo",
+        messages,
+      },
+      options
+    );
   };
 
   return { api, request };

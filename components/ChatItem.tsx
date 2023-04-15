@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC, PropsWithChildren, useMemo } from "react";
 import { StyleSheet, ViewStyle } from "react-native";
 import { ChatCompletionRequestMessageRoleEnum } from "openai";
 
@@ -12,6 +12,7 @@ export interface MessageModel {
   content: string;
   created: number;
   role: ChatCompletionRequestMessageRoleEnum;
+  isLoading?: boolean;
 }
 
 interface Props {
@@ -19,6 +20,49 @@ interface Props {
   style?: ViewStyle;
   key?: string;
 }
+
+interface ParentProps {
+  assistant: boolean;
+  key?: string;
+  style?: ViewStyle;
+}
+
+const ChatParent: FC<PropsWithChildren<ParentProps>> = ({
+  assistant,
+  key,
+  style = {},
+  children,
+}) => {
+  return (
+    <View
+      key={key}
+      style={{
+        ...styles.parent,
+        flexDirection: assistant ? "row-reverse" : "row",
+        ...style,
+      }}
+    >
+      <View style={styles.avatar}>
+        {assistant ? (
+          <OpenAiIcon style={{ margin: 2 }} width={34} height={34} />
+        ) : (
+          <UserCircleIcon width={38} height={38} />
+        )}
+      </View>
+
+      <View
+        style={{
+          ...styles.messageContainer,
+          marginStart: assistant ? 0 : 8,
+          marginEnd: assistant ? 8 : 0,
+          alignItems: assistant ? "flex-start" : "flex-end",
+        }}
+      >
+        {children}
+      </View>
+    </View>
+  );
+};
 
 export const ChatItem: FC<Props> = ({ data, style = {}, key }) => {
   const local = useLocal();
@@ -32,37 +76,21 @@ export const ChatItem: FC<Props> = ({ data, style = {}, key }) => {
     });
   }, [data, isAssistant]);
 
-  return (
-    <View
-      key={key}
-      style={{
-        ...styles.parent,
-        flexDirection: isAssistant ? "row-reverse" : "row",
-        ...style,
-      }}
-    >
-      <View style={styles.avatar}>
-        {isAssistant ? (
-          <OpenAiIcon style={{ margin: 2 }} width={34} height={34} />
-        ) : (
-          <UserCircleIcon width={38} height={38} />
-        )}
-      </View>
+  if (data.isLoading) {
+    return (
+      <ChatParent style={style} assistant={isAssistant} key={key}>
+        <Text style={styles.message}>Responding...</Text>
+      </ChatParent>
+    );
+  }
 
-      <View
-        style={{
-          ...styles.messageContainer,
-          marginStart: isAssistant ? 0 : 8,
-          marginEnd: isAssistant ? 8 : 0,
-          alignItems: isAssistant ? "flex-start" : "flex-end",
-        }}
-      >
-        <View style={styles.messageWrapper}>
-          <Text style={styles.message}>{data.content}</Text>
-        </View>
-        <Text style={styles.time}>{dateTime}</Text>
+  return (
+    <ChatParent style={style} assistant={isAssistant} key={key}>
+      <View style={styles.messageWrapper}>
+        <Text style={styles.message}>{data.content}</Text>
       </View>
-    </View>
+      <Text style={styles.time}>{dateTime}</Text>
+    </ChatParent>
   );
 };
 
